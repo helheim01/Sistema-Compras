@@ -54,5 +54,5 @@ public class CarritoCompra implements Serializable {
     // Relación 1:N con Linea Carrito
     @OneToMany(mappedBy = "carritoCompra", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<LineaCarrito> lineaCarritos = new ArrayList<>();
+    private List<LineaCarrito> lineas = new ArrayList<>();
 }

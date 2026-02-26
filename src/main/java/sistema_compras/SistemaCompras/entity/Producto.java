@@ -84,6 +84,11 @@ public class Producto implements Serializable {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Categoria categoria;
 
+    // ✅ 1:N con Imagenes (inverso)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ImagenProducto> imagenes = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
