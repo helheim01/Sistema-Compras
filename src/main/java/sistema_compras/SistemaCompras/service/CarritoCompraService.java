@@ -214,4 +214,22 @@ public class CarritoCompraService implements ICrud<CarritoCompra> {
         logger.info("Se listaron {} carritos.", carritos.size());
         return carritos;
     }
+
+    // ------------------ BUSCAR CARRITOS VACÍOS ------------------
+    public List<CarritoCompra> buscarCarritosVacios() {
+        logger.info("Buscando carritos vacíos");
+        return carritoRepository.findCarritosVacios();
+    }
+
+    // ------------------ BUSCAR CARRITOS ABANDONADOS ------------------
+    public List<CarritoCompra> buscarCarritosAbandonados(LocalDateTime fecha) {
+        logger.info("Buscando carritos abandonados desde: {}", fecha);
+        return carritoRepository.findCarritosAbandonados(fecha);
+    }
+
+    // ------------------ BUSCAR CARRITOS CON PRODUCTOS ------------------
+    public List<CarritoCompra> buscarCarritosConProductos() {
+        logger.info("Buscando carritos con productos");
+        return carritoRepository.findCarritosConProductos();
+    }
 }

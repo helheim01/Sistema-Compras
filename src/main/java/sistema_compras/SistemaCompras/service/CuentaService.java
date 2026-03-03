@@ -167,4 +167,28 @@ public class CuentaService implements ICrud<Cuenta> {
         logger.info("Se listaron {} cuentas.", cuentas.size());
         return cuentas;
     }
+
+    // ------------------ BUSCAR CUENTAS CERRADAS ------------------
+    public List<Cuenta> buscarCuentasCerradas() {
+        logger.info("Buscando cuentas cerradas");
+        return cuentaRepository.findByEstaCerrada(true);
+    }
+
+    // ------------------ BUSCAR CUENTAS ACTIVAS ------------------
+    public List<Cuenta> buscarCuentasActivas() {
+        logger.info("Buscando cuentas activas (no cerradas)");
+        return cuentaRepository.findByEstaCerradaFalse();
+    }
+
+    // ------------------ BUSCAR CUENTAS CON SALDO PENDIENTE ------------------
+    public List<Cuenta> buscarCuentasConSaldoPendiente(BigDecimal saldoMinimo) {
+        logger.info("Buscando cuentas con saldo pendiente mayor a: {}", saldoMinimo);
+        return cuentaRepository.findBySaldoPendienteGreaterThan(saldoMinimo);
+    }
+
+    // ------------------ CONTAR PEDIDOS POR CUENTA (QUERY) ------------------
+    public Long contarPedidosPorCuentaQuery(Integer cuentaId) {
+        logger.info("Contando pedidos para cuenta ID: {}", cuentaId);
+        return cuentaRepository.contarPedidosPorCuenta(cuentaId);
+    }
 }

@@ -170,8 +170,9 @@ public class PagoService implements ICrud<Pago> {
 
     // ------------------ CALCULAR TOTAL PAGADO ------------------
     public BigDecimal calcularTotalPagado(Integer pedidoId) {
-        List<Pago> pagos = pagoRepository.findByPedidoIdAndEstado(pedidoId, EstadoPago.COMPLETADO);
+        List<Pago> pagos = pagoRepository.findByPedidoId(pedidoId);
         return pagos.stream()
+                .filter(p -> p.getEstado() == EstadoPago.COMPLETADO)
                 .map(Pago::getImporte)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

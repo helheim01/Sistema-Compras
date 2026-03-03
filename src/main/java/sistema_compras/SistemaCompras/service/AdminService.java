@@ -109,6 +109,12 @@ public class AdminService implements ICrud<Admin> {
         return adminRepository.findByRol(rol);
     }
 
+    // ------------------ BUSCAR POR NOMBRE ------------------
+    public List<Admin> buscarPorNombre(String nombre) {
+        logger.info("Buscando admins por nombre: {}", nombre);
+        return adminRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
     // ------------------ MODIFICAR ------------------
     @Transactional
     @Override

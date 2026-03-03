@@ -22,7 +22,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "pago")
+@Table(name = "Pago")
 public class Pago implements Serializable {
     @Serial
     private static final long serialVersionUID=1L;

@@ -129,4 +129,28 @@ public class ClienteService implements ICrud<Cliente> {
         logger.info("Se listaron {} clientes.", clientes.size());
         return clientes;
     }
+
+    // ------------------ BUSCAR POR NOMBRE ------------------
+    public List<Cliente> buscarPorNombre(String nombre) {
+        logger.info("Buscando clientes por nombre: {}", nombre);
+        return clienteRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+    // ------------------ BUSCAR POR TELÉFONO ------------------
+    public Cliente buscarPorTelefono(String telefono) {
+        logger.info("Buscando cliente por teléfono: {}", telefono);
+        return clienteRepository.findByTelefono(telefono).orElse(null);
+    }
+
+    // ------------------ BUSCAR CLIENTES CON PUNTOS MAYORES A ------------------
+    public List<Cliente> buscarClientesConPuntosMayoresA(Integer puntos) {
+        logger.info("Buscando clientes con más de {} puntos", puntos);
+        return clienteRepository.findClientesConPuntosMayoresA(puntos);
+    }
+
+    // ------------------ BUSCAR POR USUARIO WEB ID ------------------
+    public Cliente buscarPorUsuarioWebId(Integer usuarioWebId) {
+        logger.info("Buscando cliente por usuario web ID: {}", usuarioWebId);
+        return clienteRepository.findByUsuarioWebId(usuarioWebId).orElse(null);
+    }
 }

@@ -130,4 +130,40 @@ public class CategoriaService implements ICrud<Categoria> {
         logger.info("Se listaron {} categorías.", categorias.size());
         return categorias;
     }
+
+    // ------------------ VERIFICAR SI EXISTE POR NOMBRE ------------------
+    public boolean existePorNombre(String nombre) {
+        logger.info("Verificando si existe categoría con nombre: {}", nombre);
+        return categoriaRepository.existsByNombre(nombre);
+    }
+
+    // ------------------ LISTAR INACTIVAS ------------------
+    public List<Categoria> listarInactivas() {
+        logger.info("Listando categorías inactivas");
+        return categoriaRepository.findByActivaFalse();
+    }
+
+    // ------------------ BUSCAR POR NOMBRE (BÚSQUEDA PARCIAL) ------------------
+    public List<Categoria> buscarPorNombreParcial(String nombre) {
+        logger.info("Buscando categorías por nombre parcial: {}", nombre);
+        return categoriaRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+    // ------------------ CATEGORÍAS CON PRODUCTOS ------------------
+    public List<Categoria> listarCategoriasConProductos() {
+        logger.info("Listando categorías con productos");
+        return categoriaRepository.findCategoriasConProductos();
+    }
+
+    // ------------------ CATEGORÍAS SIN PRODUCTOS ------------------
+    public List<Categoria> listarCategoriasSinProductos() {
+        logger.info("Listando categorías sin productos");
+        return categoriaRepository.findCategoriasSinProductos();
+    }
+
+    // ------------------ CONTAR PRODUCTOS POR CATEGORÍA ------------------
+    public List<Object[]> contarProductosPorCategoria() {
+        logger.info("Contando productos por categoría");
+        return categoriaRepository.contarProductosPorCategoria();
+    }
 }
