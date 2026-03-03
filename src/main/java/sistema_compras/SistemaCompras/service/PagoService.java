@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -65,7 +67,10 @@ public class PagoService implements ICrud<Pago> {
             switch (tipoPago) {
                 case TARJETA_CREDITO:
                 case TARJETA_DEBITO:
-                    exito = procesarPagoTarjeta(pago, (TarjetaCreditoDebito) metodoPago);
+                    if (!(metodoPago instanceof TarjetaCreditoDebito tarjeta)) {
+                    throw new IllegalArgumentException("Método de pago inválido para tarjeta.");
+                }
+                exito = procesarPagoTarjeta(pago, tarjeta);
                     break;
                 case PUNTOS_RECOMPENSA:
                     exito = procesarPagoPuntos(pago, (PuntosRecompensa) metodoPago);
@@ -131,7 +136,7 @@ public class PagoService implements ICrud<Pago> {
     private boolean procesarPagoPuntos(Pago pago, PuntosRecompensa puntosRecompensa) {
         // Calcular puntos necesarios
         BigDecimal tasaConversion = puntosRecompensa.getTasaConversion(); // ej: 0.01 (1 punto = $0.01)
-        int puntosNecesarios = pago.getImporte().divide(tasaConversion, 0, BigDecimal.ROUND_UP).intValue();
+        int puntosNecesarios = pago.getImporte().divide(tasaConversion, 0, RoundingMode.UP).intValue();
 
         if (puntosRecompensa.getPuntosDisponibles() < puntosNecesarios) {
             throw new IllegalArgumentException("Puntos insuficientes. Necesarios: " + puntosNecesarios
@@ -170,11 +175,8 @@ public class PagoService implements ICrud<Pago> {
 
     // ------------------ CALCULAR TOTAL PAGADO ------------------
     public BigDecimal calcularTotalPagado(Integer pedidoId) {
-        List<Pago> pagos = pagoRepository.findByPedidoId(pedidoId);
-        return pagos.stream()
-                .filter(p -> p.getEstado() == EstadoPago.COMPLETADO)
-                .map(Pago::getImporte)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = pagoRepository.calcularTotalPagadoPorPedido(pedidoId);
+        return total != null ? total : BigDecimal.ZERO; // SUM puede devolver null si no hay filas
     }
 
     // ------------------ REEMBOLSAR ------------------
@@ -292,5 +294,54 @@ public class PagoService implements ICrud<Pago> {
         List<Pago> pagos = pagoRepository.findAll();
         logger.info("Se listaron {} pagos.", pagos.size());
         return pagos;
+    }
+
+    // ------------------ BUSCAR POR CÓDIGO DE TRANSACCIÓN ------------------
+    public Optional<Pago> buscarPorCodigo(String codigoTransaccion) {
+        return pagoRepository.findByCodigoTransaccion(codigoTransaccion);
+    }
+
+    // ------------------ BUSCAR POR CUENTA ------------------
+    public List<Pago> buscarPorCuenta(Integer cuentaId) {
+        return pagoRepository.findByCuentaId(cuentaId);
+    }
+
+    // ------------------ BUSCAR POR TIPO DE PAGO ------------------
+    public List<Pago> buscarPorTipo(TipoPago tipoPago) {
+        return pagoRepository.findByTipoPago(tipoPago);
+    }
+
+    // ------------------ BUSCAR POR RANGO DE FECHAS ------------------
+    public List<Pago> buscarPorRangoFechas(LocalDateTime inicio, LocalDateTime fin) {
+        if (inicio.isAfter(fin)) {
+            throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la de fin.");
+        }
+        return pagoRepository.findByFechaPagoBetween(inicio, fin);
+    }
+
+    // ------------------ BUSCAR POR ESTADOS ------------------
+    public List<Pago> buscarPorEstados(List<EstadoPago> estados) {
+        return pagoRepository.findByEstadoIn(estados);
+    }
+
+    // ------------------ BUSCAR POR PEDIDO Y ESTADO ------------------
+    public Optional<Pago> buscarPorPedidoYEstado(Integer pedidoId, EstadoPago estado) {
+        return pagoRepository.findByPedidoIdAndEstado(pedidoId, estado);
+    }
+
+    // ------------------ INGRESOS POR PERÍODO ------------------
+    public BigDecimal calcularIngresosPorPeriodo(LocalDateTime inicio, LocalDateTime fin) {
+        BigDecimal total = pagoRepository.calcularIngresosPorPeriodo(inicio, fin);
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    // ------------------ ESTADÍSTICAS POR TIPO ------------------
+    public List<Object[]> obtenerEstadisticasPorTipo() {
+        return pagoRepository.estadisticasPorTipoPago();
+    }
+
+    // ------------------ PAGOS POR CLIENTE ------------------
+    public List<Pago> buscarPorCliente(Integer clienteId) {
+        return pagoRepository.findPagosPorCliente(clienteId);
     }
 }

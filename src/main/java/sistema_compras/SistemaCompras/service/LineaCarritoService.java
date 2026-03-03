@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LineaCarritoService implements ICrud<LineaCarrito> {
@@ -39,8 +40,8 @@ public class LineaCarritoService implements ICrud<LineaCarrito> {
     @Transactional
     public void actualizarCantidad(Integer id, Integer nuevaCantidad) {
         LineaCarrito linea = buscar(id);
-        if (linea == null) {
-            throw new IllegalArgumentException("Línea de carrito no encontrada.");
+        if (nuevaCantidad == null || nuevaCantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
         }
 
         linea.setCantidad(nuevaCantidad);
@@ -52,6 +53,9 @@ public class LineaCarritoService implements ICrud<LineaCarrito> {
 
     // ------------------ CALCULAR SUBTOTAL ------------------
     private void calcularSubtotal(LineaCarrito linea) {
+        if (linea.getPrecioUnitario() == null || linea.getCantidad() == null) {
+            throw new IllegalArgumentException("Precio unitario y cantidad son obligatorios.");
+        }
         BigDecimal subtotal = linea.getPrecioUnitario()
                 .multiply(BigDecimal.valueOf(linea.getCantidad()));
         linea.setSubtotal(subtotal);
@@ -109,5 +113,30 @@ public class LineaCarritoService implements ICrud<LineaCarrito> {
         List<LineaCarrito> lineas = lineaCarritoRepository.findAll();
         logger.info("Se listaron {} líneas de carrito.", lineas.size());
         return lineas;
+    }
+
+    // ------------------ BUSCAR POR PRODUCTO ------------------
+    public List<LineaCarrito> buscarPorProducto(Integer productoId) {
+        return lineaCarritoRepository.findByProductoId(productoId);
+    }
+
+    // ------------------ BUSCAR LÍNEA ESPECÍFICA (carrito + producto) ------------------
+    public Optional<LineaCarrito> buscarPorCarritoYProducto(Integer carritoId, Integer productoId) {
+        return lineaCarritoRepository.findByCarritoCompraIdAndProductoId(carritoId, productoId);
+    }
+
+    // ------------------ ELIMINAR POR CARRITO ------------------
+    @Transactional
+    public void eliminarPorCarrito(Integer carritoId) {
+        if (!lineaCarritoRepository.existsById(carritoId)) {
+            throw new IllegalArgumentException("No existe un carrito con ID " + carritoId);
+        }
+        lineaCarritoRepository.deleteByCarritoCompraId(carritoId);
+        logger.info("Líneas eliminadas del carrito ID: {}", carritoId);
+    }
+
+    // ------------------ PRODUCTOS MÁS AGREGADOS ------------------
+    public List<Object[]> obtenerProductosMasAgregados() {
+        return lineaCarritoRepository.findProductosMasAgregados();
     }
 }

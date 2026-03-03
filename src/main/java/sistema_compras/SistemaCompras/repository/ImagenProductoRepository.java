@@ -22,11 +22,11 @@ public interface ImagenProductoRepository extends JpaRepository<ImagenProducto, 
 
     // Contar imágenes de un producto
     @Query("SELECT COUNT(i) FROM ImagenProducto i WHERE i.producto.id = :productoId")
-    Long contarImagenesPorProducto(Integer productoId);
+    Long contarImagenesPorProducto(@Param("productoId") Integer productoId);
 
     // Buscar imagen principal (orden = 0)
     @Query("SELECT i FROM ImagenProducto i WHERE i.producto.id = :productoId AND i.orden = 0")
-    ImagenProducto findImagenPrincipal(Integer productoId);
+    ImagenProducto findImagenPrincipal(@Param("productoId") Integer productoId);
 
     @Query("SELECT COALESCE(MAX(i.orden), 0) FROM ImagenProducto i WHERE i.producto.id = :productoId")
     Integer findMaxOrdenByProductoId(@Param("productoId") Integer productoId);

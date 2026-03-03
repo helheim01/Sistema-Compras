@@ -39,8 +39,9 @@ public class LineaPedidoService implements ICrud<LineaPedido> {
     @Transactional
     public void aplicarDescuento(Integer id, BigDecimal porcentaje) {
         LineaPedido linea = buscar(id);
-        if (linea == null) {
-            throw new IllegalArgumentException("Línea de pedido no encontrada.");
+        if (porcentaje == null || porcentaje.compareTo(BigDecimal.ZERO) < 0
+                || porcentaje.compareTo(BigDecimal.valueOf(100)) > 0) {
+            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 100.");
         }
 
         BigDecimal descuento = linea.getPrecioUnitario()
@@ -57,9 +58,13 @@ public class LineaPedidoService implements ICrud<LineaPedido> {
 
     // ------------------ CALCULAR SUBTOTAL ------------------
     private void calcularSubtotal(LineaPedido linea) {
-        BigDecimal subtotalSinDescuento = linea.getPrecioUnitario()
-                .multiply(BigDecimal.valueOf(linea.getCantidad()));
-        BigDecimal subtotal = subtotalSinDescuento.subtract(linea.getDescuento());
+        if (linea.getPrecioUnitario() == null || linea.getCantidad() == null) {
+            throw new IllegalArgumentException("Precio unitario y cantidad son obligatorios.");
+        }
+        BigDecimal descuento = linea.getDescuento() != null ? linea.getDescuento() : BigDecimal.ZERO;
+        BigDecimal subtotal = linea.getPrecioUnitario()
+                .multiply(BigDecimal.valueOf(linea.getCantidad()))
+                .subtract(descuento);
         linea.setSubtotal(subtotal);
     }
 
@@ -116,5 +121,28 @@ public class LineaPedidoService implements ICrud<LineaPedido> {
         List<LineaPedido> lineas = lineaPedidoRepository.findAll();
         logger.info("Se listaron {} líneas de pedido.", lineas.size());
         return lineas;
+    }
+
+    // ------------------ BUSCAR POR PRODUCTO ------------------
+    public List<LineaPedido> buscarPorProducto(Integer productoId) {
+        return lineaPedidoRepository.findByProductoId(productoId);
+    }
+
+//    // ------------------ PRODUCTOS MÁS VENDIDOS ------------------
+//    public List<ProductoVendidoDTO> obtenerProductosMasVendidos() {
+//        return lineaPedidoRepository.findProductosMasVendidos()
+//                .stream()
+//                .map(row -> new ProductoVendidoDTO((Integer) row[0], (String) row[1], (Long) row[2]))
+//                .toList();
+//    }
+
+    // ------------------ UNIDADES VENDIDAS DE UN PRODUCTO ------------------
+    public Long contarUnidadesVendidas(Integer productoId) {
+        return lineaPedidoRepository.contarUnidadesVendidas(productoId);
+    }
+
+    // ------------------ PRODUCTOS COMPRADOS JUNTOS ------------------
+    public List<Object[]> obtenerProductosCompradosJuntos() {
+        return lineaPedidoRepository.findProductosCompradosJuntos();
     }
 }
