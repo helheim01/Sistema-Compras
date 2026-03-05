@@ -15,7 +15,7 @@ public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     // ------------------ ENVIAR EMAIL GENÉRICO ------------------

@@ -191,4 +191,77 @@ public class ProductoService implements ICrud<Producto> {
         logger.info("Se listaron {} productos.", productos.size());
         return productos;
     }
+
+    // ------------------ BUSCAR PRODUCTOS INACTIVOS ------------------
+    public List<Producto> listarInactivos() {
+        logger.info("Listando productos inactivos");
+        return productoRepository.findByActivoFalse();
+    }
+
+    // ------------------ BUSCAR POR NOMBRE ------------------
+    public List<Producto> buscarPorNombre(String nombre) {
+        logger.info("Buscando productos por nombre: {}", nombre);
+        return productoRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+    // ------------------ BUSCAR POR RANGO DE PRECIO ------------------
+    public List<Producto> buscarPorRangoPrecio(BigDecimal precioMin, BigDecimal precioMax) {
+        logger.info("Buscando productos entre {} y {}", precioMin, precioMax);
+        return productoRepository.findByPrecioBetween(precioMin, precioMax);
+    }
+
+    // ------------------ BUSCAR POR PROVEEDOR ------------------
+    public List<Producto> buscarPorProveedor(String proveedor) {
+        logger.info("Buscando productos del proveedor: {}", proveedor);
+        return productoRepository.findByProveedor(proveedor);
+    }
+
+    // ------------------ BUSCAR PRODUCTOS CON STOCK BAJO ------------------
+    public List<Producto> buscarProductosConStockBajo(Integer stockMinimo) {
+        logger.info("Buscando productos con stock menor a: {}", stockMinimo);
+        return productoRepository.findProductosConStockBajo(stockMinimo);
+    }
+
+    // ------------------ BUSCAR POR STOCK ESPECÍFICO ------------------
+    public List<Producto> buscarPorStock(Integer stock) {
+        logger.info("Buscando productos con stock igual a: {}", stock);
+        return productoRepository.findByStockEquals(stock);
+    }
+
+    // ------------------ LISTAR PRODUCTOS MÁS CAROS ------------------
+    public List<Producto> listarMasCaros() {
+        logger.info("Listando top 10 productos más caros");
+        return productoRepository.findTop10ByActivoTrueOrderByPrecioDesc();
+    }
+
+    // ------------------ LISTAR PRODUCTOS MÁS BARATOS ------------------
+    public List<Producto> listarMasBaratos() {
+        logger.info("Listando top 10 productos más baratos");
+        return productoRepository.findTop10ByActivoTrueOrderByPrecioAsc();
+    }
+
+    // ------------------ BUSCAR POR CATEGORÍA (SOLO ACTIVOS) ------------------
+    public List<Producto> buscarPorCategoriaActivos(Integer categoriaId) {
+        logger.info("Buscando productos activos de categoría ID: {}", categoriaId);
+        return productoRepository.findByCategoriaIdAndActivoTrue(categoriaId);
+    }
+
+    // ------------------ BÚSQUEDA AVANZADA ------------------
+    public List<Producto> busquedaAvanzada(String nombre, Integer categoriaId,
+                                           BigDecimal precioMin, BigDecimal precioMax) {
+        logger.info("Búsqueda avanzada - Nombre: {}, CategoríaId: {}, Precio: {} - {}",
+                nombre, categoriaId, precioMin, precioMax);
+        return productoRepository.busquedaAvanzada(nombre, categoriaId, precioMin, precioMax);
+    }
+
+    // ------------------ ACTIVAR ------------------
+    @Transactional
+    public void activar(Integer id) {
+        Producto producto = buscar(id);
+        if (producto != null) {
+            producto.setActivo(true);
+            productoRepository.save(producto);
+            logger.info("Producto activado: {}", producto.getNombre());
+        }
+    }
 }

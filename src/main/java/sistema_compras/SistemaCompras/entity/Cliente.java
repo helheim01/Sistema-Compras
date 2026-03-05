@@ -60,7 +60,7 @@ public class Cliente implements Serializable {
     private Cuenta cuenta;  // ← NO Cliente
 
     // ✅ Relación 1:1 inversa con CarritoCompra
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private CarritoCompra carritoCompra;
 

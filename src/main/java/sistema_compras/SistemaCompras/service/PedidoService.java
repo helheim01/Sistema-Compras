@@ -230,4 +230,59 @@ public class PedidoService implements ICrud<Pedido> {
         logger.info("Se listaron {} pedidos.", pedidos.size());
         return pedidos;
     }
+
+    // ------------------ BUSCAR POR NÚMERO DE PEDIDO ------------------
+    public Pedido buscarPorNumeroPedido(String numeroPedido) {
+        logger.info("Buscando pedido por número: {}", numeroPedido);
+        return pedidoRepository.findByNumeroPedido(numeroPedido).orElse(null);
+    }
+
+    // ------------------ BUSCAR POR CUENTA ------------------
+    public List<Pedido> buscarPorCuenta(Integer cuentaId) {
+        logger.info("Buscando pedidos por cuenta ID: {}", cuentaId);
+        return pedidoRepository.findByCuentaId(cuentaId);
+    }
+
+    // ------------------ BUSCAR POR CLIENTE Y ESTADO ------------------
+    public List<Pedido> buscarPorClienteYEstado(Integer clienteId, EstadoPedido estado) {
+        logger.info("Buscando pedidos de cliente {} con estado {}", clienteId, estado);
+        return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+    }
+
+    // ------------------ BUSCAR POR RANGO DE FECHAS ------------------
+    public List<Pedido> buscarPorRangoFechas(LocalDateTime inicio, LocalDateTime fin) {
+        logger.info("Buscando pedidos entre {} y {}", inicio, fin);
+        return pedidoRepository.findByFechaPedidoBetween(inicio, fin);
+    }
+
+    // ------------------ BUSCAR PEDIDOS PENDIENTES DE ENVÍO ------------------
+    public List<Pedido> buscarPedidosPendientesEnvio() {
+        logger.info("Buscando pedidos pendientes de envío");
+        return pedidoRepository.findPedidosPendientesEnvio();
+    }
+
+    // ------------------ CALCULAR TOTAL VENTAS ------------------
+    public BigDecimal calcularTotalVentas(LocalDateTime inicio, LocalDateTime fin) {
+        logger.info("Calculando total de ventas entre {} y {}", inicio, fin);
+        BigDecimal total = pedidoRepository.calcularTotalVentas(inicio, fin);
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    // ------------------ BUSCAR PEDIDOS RECIENTES DE CLIENTE ------------------
+    public List<Pedido> buscarPedidosRecientesCliente(Integer clienteId) {
+        logger.info("Buscando últimos 10 pedidos de cliente ID: {}", clienteId);
+        return pedidoRepository.findTop10ByClienteIdOrderByFechaPedidoDesc(clienteId);
+    }
+
+    // ------------------ BUSCAR POR TOTAL MAYOR O IGUAL ------------------
+    public List<Pedido> buscarPorTotalMayorIgual(BigDecimal total) {
+        logger.info("Buscando pedidos con total >= {}", total);
+        return pedidoRepository.findByTotalGreaterThanEqual(total);
+    }
+
+    // ------------------ CONTAR PEDIDOS POR ESTADO ------------------
+    public List<Object[]> contarPedidosPorEstado() {
+        logger.info("Contando pedidos por estado");
+        return pedidoRepository.contarPedidosPorEstado();
+    }
 }

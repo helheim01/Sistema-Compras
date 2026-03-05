@@ -33,20 +33,17 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
             throw new IllegalArgumentException("Email y contraseña son obligatorios.");
         }
 
-        // Validar que el email no exista
         if (usuarioWebRepository.existsByEmail(usuarioWeb.getEmail())) {
             throw new IllegalArgumentException("El email ya está registrado.");
         }
 
-        // Encriptar contraseña
         usuarioWeb.setContrasena(passwordEncoder.encode(usuarioWeb.getContrasena()));
-
-        // Establecer valores por defecto
         usuarioWeb.setEstado(EstadoUsuario.NUEVO);
         usuarioWeb.setFechaRegistro(LocalDateTime.now());
         usuarioWeb.setUltimoAcceso(LocalDateTime.now());
 
         UsuarioWeb guardado = usuarioWebRepository.save(usuarioWeb);
+        guardado.setContrasena(null);
         logger.info("Usuario registrado con éxito: {}", guardado.getEmail());
         return guardado;
     }
@@ -54,34 +51,44 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
     // ------------------ BUSCAR POR EMAIL ------------------
     public Optional<UsuarioWeb> buscarPorEmail(String email) {
         logger.info("Buscando usuario por email: {}", email);
-        return usuarioWebRepository.findByEmail(email);
+        return usuarioWebRepository.findByEmail(email)
+                .map(u -> { u.setContrasena(null); return u; });
+    }
+
+    // ------------------ BUSCAR POR ESTADO ------------------
+    public List<UsuarioWeb> buscarPorEstado(EstadoUsuario estado) {
+        return usuarioWebRepository.findByEstado(estado);
+    }
+
+    // ------------------ BUSCAR EXCLUYENDO ESTADO ------------------
+    public List<UsuarioWeb> buscarExcluyendoEstado(EstadoUsuario estado) {
+        return usuarioWebRepository.findByEstadoNot(estado);
     }
 
     // ------------------ ACTUALIZAR ÚLTIMO ACCESO ------------------
     @Transactional
     public void actualizarUltimoAcceso(Integer id) {
-        UsuarioWeb usuario = buscar(id);
-        if (usuario != null) {
-            usuario.setUltimoAcceso(LocalDateTime.now());
-            usuarioWebRepository.save(usuario);
-            logger.info("Último acceso actualizado para usuario: {}", usuario.getEmail());
-        }
+        UsuarioWeb usuario = usuarioWebRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe un usuario con ID " + id));
+        usuario.setUltimoAcceso(LocalDateTime.now());
+        usuarioWebRepository.save(usuario);
+        logger.info("Último acceso actualizado para usuario: {}", usuario.getEmail());
     }
 
     // ------------------ CAMBIAR CONTRASEÑA ------------------
     @Transactional
     public void cambiarContrasena(Integer id, String antiguaContrasena, String nuevaContrasena) {
-        UsuarioWeb usuario = buscar(id);
-        if (usuario == null) {
-            throw new IllegalArgumentException("Usuario no encontrado.");
-        }
+        UsuarioWeb usuario = usuarioWebRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe un usuario con ID " + id));
 
-        // Verificar contraseña antigua
         if (!passwordEncoder.matches(antiguaContrasena, usuario.getContrasena())) {
             throw new IllegalArgumentException("La contraseña antigua no es correcta.");
         }
 
-        // Actualizar contraseña
+        if (passwordEncoder.matches(nuevaContrasena, usuario.getContrasena())) {
+            throw new IllegalArgumentException("La nueva contraseña no puede ser igual a la anterior.");
+        }
+
         usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
         usuarioWebRepository.save(usuario);
         logger.info("Contraseña cambiada para usuario: {}", usuario.getEmail());
@@ -90,23 +97,21 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
     // ------------------ ACTIVAR CUENTA ------------------
     @Transactional
     public void activarCuenta(Integer id) {
-        UsuarioWeb usuario = buscar(id);
-        if (usuario != null) {
-            usuario.setEstado(EstadoUsuario.ACTIVO);
-            usuarioWebRepository.save(usuario);
-            logger.info("Cuenta activada: {}", usuario.getEmail());
-        }
+        UsuarioWeb usuario = usuarioWebRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe un usuario con ID " + id));
+        usuario.setEstado(EstadoUsuario.ACTIVO);
+        usuarioWebRepository.save(usuario);
+        logger.info("Cuenta activada: {}", usuario.getEmail());
     }
 
     // ------------------ BLOQUEAR CUENTA ------------------
     @Transactional
     public void bloquearCuenta(Integer id) {
-        UsuarioWeb usuario = buscar(id);
-        if (usuario != null) {
-            usuario.setEstado(EstadoUsuario.BLOQUEADO);
-            usuarioWebRepository.save(usuario);
-            logger.warn("Cuenta bloqueada: {}", usuario.getEmail());
-        }
+        UsuarioWeb usuario = usuarioWebRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe un usuario con ID " + id));
+        usuario.setEstado(EstadoUsuario.BLOQUEADO);
+        usuarioWebRepository.save(usuario);
+        logger.warn("Cuenta bloqueada: {}", usuario.getEmail());
     }
 
     // ------------------ MODIFICAR ------------------
@@ -120,11 +125,11 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
         UsuarioWeb existente = usuarioWebRepository.findById(usuarioWeb.getId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un usuario con ID " + usuarioWeb.getId()));
 
-        // Actualizar solo email y estado (la contraseña se cambia con otro método)
         existente.setEmail(usuarioWeb.getEmail());
         existente.setEstado(usuarioWeb.getEstado());
 
         UsuarioWeb actualizado = usuarioWebRepository.save(existente);
+        actualizado.setContrasena(null);
         logger.info("Usuario modificado con éxito: {}", actualizado.getEmail());
         return actualizado;
     }
@@ -135,7 +140,9 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
         UsuarioWeb usuario = usuarioWebRepository.findById(id).orElse(null);
         if (usuario == null) {
             logger.warn("No se encontró usuario con ID: {}", id);
+            return null;
         }
+        usuario.setContrasena(null);
         return usuario;
     }
 
@@ -154,6 +161,7 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
     @Override
     public List<UsuarioWeb> listar() {
         List<UsuarioWeb> usuarios = usuarioWebRepository.findAll();
+        usuarios.forEach(u -> u.setContrasena(null));
         logger.info("Se listaron {} usuarios.", usuarios.size());
         return usuarios;
     }

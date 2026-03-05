@@ -173,4 +173,35 @@ public class PuntosRecompensaService implements ICrud<PuntosRecompensa> {
         logger.info("Se listaron {} sistemas de puntos.", puntos.size());
         return puntos;
     }
+
+    // ------------------ BUSCAR POR CÓDIGO DE CUPÓN ------------------
+    public PuntosRecompensa buscarPorCodigoCupon(String codigoCupon) {
+        logger.info("Buscando puntos por código de cupón: {}", codigoCupon);
+        return puntosRepository.findByCodigoCupon(codigoCupon).orElse(null);
+    }
+
+    // ------------------ BUSCAR CON PUNTOS MAYORES A ------------------
+    public List<PuntosRecompensa> buscarConPuntosMayoresA(Integer puntos) {
+        logger.info("Buscando clientes con más de {} puntos", puntos);
+        return puntosRepository.findByPuntosDisponiblesGreaterThan(puntos);
+    }
+
+    // ------------------ TOP 10 CLIENTES CON MÁS PUNTOS ------------------
+    public List<PuntosRecompensa> obtenerTop10ClientesConMasPuntos() {
+        logger.info("Obteniendo top 10 clientes con más puntos");
+        return puntosRepository.findTop10ByOrderByPuntosDisponiblesDesc();
+    }
+
+    // ------------------ CALCULAR TOTAL PUNTOS EN SISTEMA ------------------
+    public Long calcularTotalPuntosEnSistema() {
+        logger.info("Calculando total de puntos en el sistema");
+        Long total = puntosRepository.calcularTotalPuntosEnSistema();
+        return total != null ? total : 0L;
+    }
+
+    // ------------------ BUSCAR CLIENTES SIN PUNTOS ------------------
+    public List<PuntosRecompensa> buscarClientesSinPuntos() {
+        logger.info("Buscando clientes sin puntos");
+        return puntosRepository.findByPuntosDisponiblesEquals(0);
+    }
 }
