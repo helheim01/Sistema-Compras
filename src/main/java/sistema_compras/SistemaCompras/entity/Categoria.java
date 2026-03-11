@@ -1,6 +1,8 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -44,4 +46,9 @@ public class Categoria implements Serializable {
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Producto> productos = new ArrayList<>();
+
+    @JsonCreator
+    public Categoria (@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }

@@ -1,6 +1,8 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,7 +49,7 @@ public class LineaCarrito implements Serializable {
     // ✅ N:1 con CarritoCompra
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "carrito_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "lineas", "cliente"})
     private CarritoCompra carritoCompra;
 
     // ✅ N:1 con Producto
@@ -55,4 +57,9 @@ public class LineaCarrito implements Serializable {
     @JoinColumn(name = "producto_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Producto producto;
+
+    @JsonCreator
+    public LineaCarrito (@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }

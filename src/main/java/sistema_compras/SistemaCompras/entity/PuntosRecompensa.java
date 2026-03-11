@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,8 @@ public class PuntosRecompensa extends MetodoPago implements Serializable {
 
     @Column(name = "puntos_disponibles", nullable = false)  // ✅ Corregido nombre
     @NotNull(message = "Los puntos disponibles son obligatorios")
-    @Positive(message = "Los puntos disponibles deben ser positivos")
+    // En PuntosRecompensa.java
+    @PositiveOrZero(message = "Los puntos disponibles no pueden ser negativos")
     private Integer puntosDisponibles;
 
     @Column(name = "tasa_conversion", nullable = false, precision = 10, scale = 2)

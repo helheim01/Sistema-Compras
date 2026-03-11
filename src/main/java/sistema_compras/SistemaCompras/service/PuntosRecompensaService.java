@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,11 +27,21 @@ public class PuntosRecompensaService implements ICrud<PuntosRecompensa> {
             throw new IllegalArgumentException("Los puntos deben estar asociados a un cliente.");
         }
 
+        // Setear titular desde el cliente si no viene
+        if (puntos.getTitular() == null) {
+            puntos.setTitular(puntos.getCliente().getNombre());
+        }
+
+        if (puntos.getActivo() == null) {
+            puntos.setActivo(true);
+        }
+
         if (puntos.getPuntosDisponibles() == null) {
             puntos.setPuntosDisponibles(0);
         }
+
         if (puntos.getTasaConversion() == null) {
-            puntos.setTasaConversion(BigDecimal.valueOf(0.01)); // 1 punto = $0.01 por defecto
+            puntos.setTasaConversion(BigDecimal.valueOf(0.01));
         }
 
         PuntosRecompensa guardados = puntosRepository.save(puntos);
@@ -85,14 +94,9 @@ public class PuntosRecompensaService implements ICrud<PuntosRecompensa> {
             throw new IllegalArgumentException("Sistema de puntos no encontrado.");
         }
 
-        // Aquí iría la validación del cupón contra una tabla de cupones
-        // Por ahora simulamos la aplicación
-
         if (validarCupon(codigoCupon)) {
             puntos.setCodigoCupon(codigoCupon);
-            // Agregar puntos bonus por el cupón
-            agregarPuntos(id, 100); // Ejemplo: 100 puntos bonus
-
+            agregarPuntos(id, 100);
             puntosRepository.save(puntos);
             logger.info("Cupón aplicado: {} para cliente ID: {}", codigoCupon, puntos.getCliente().getId());
             return true;
@@ -104,8 +108,6 @@ public class PuntosRecompensaService implements ICrud<PuntosRecompensa> {
 
     // ------------------ VALIDAR CUPÓN ------------------
     private boolean validarCupon(String codigoCupon) {
-        // Aquí iría la lógica de validación contra BD
-        // Por ahora simulamos
         return codigoCupon != null && codigoCupon.length() >= 6;
     }
 
@@ -115,7 +117,6 @@ public class PuntosRecompensaService implements ICrud<PuntosRecompensa> {
         if (puntos == null) {
             return BigDecimal.ZERO;
         }
-
         return BigDecimal.valueOf(puntos.getPuntosDisponibles())
                 .multiply(puntos.getTasaConversion());
     }

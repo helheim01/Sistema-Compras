@@ -1,6 +1,8 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,5 +62,10 @@ public class UsuarioWeb implements Serializable {
         if (estado == null) {
             estado = EstadoUsuario.NUEVO;
         }
+    }
+
+    @JsonCreator
+    public UsuarioWeb(@JsonProperty("id") Integer id) {
+        this.id = id;
     }
 }

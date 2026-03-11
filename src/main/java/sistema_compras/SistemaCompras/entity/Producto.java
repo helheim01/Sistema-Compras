@@ -1,7 +1,9 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -92,5 +94,10 @@ public class Producto implements Serializable {
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
+    }
+
+    @JsonCreator
+    public Producto (@JsonProperty("id") Integer id) {
+        this.id = id;
     }
 }

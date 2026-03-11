@@ -1,7 +1,9 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -77,4 +79,9 @@ public class Cliente implements Serializable {
     // ✅ Relación 1:1 con PuntosRecompensa (NO 1:N)
     @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private PuntosRecompensa puntosRecompensa;
+
+    @JsonCreator
+    public Cliente(@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }

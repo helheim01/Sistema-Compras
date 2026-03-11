@@ -1,10 +1,13 @@
 package sistema_compras.SistemaCompras.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,7 +42,7 @@ public class CarritoCompra implements Serializable {
     private LocalDateTime fechaActualizacion;
 
     @Column(name = "subtotal", nullable = false)
-    @Positive(message = "El subtotal pendiente debe ser positiva")
+    @PositiveOrZero(message = "El subtotal no puede ser negativo")
     private BigDecimal subtotal;
 
     //-------------Relaciones---------------------------------------------------------------
@@ -55,4 +58,10 @@ public class CarritoCompra implements Serializable {
     @OneToMany(mappedBy = "carritoCompra", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<LineaCarrito> lineas = new ArrayList<>();
+
+    // En CarritoCompra.java
+    @JsonCreator
+    public CarritoCompra(@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }

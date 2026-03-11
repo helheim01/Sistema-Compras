@@ -25,6 +25,17 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // ------------------ HELPER: construir respuesta sin contraseña ------------------
+    private UsuarioWeb sinContrasena(UsuarioWeb u) {
+        UsuarioWeb respuesta = new UsuarioWeb();
+        respuesta.setId(u.getId());
+        respuesta.setEmail(u.getEmail());
+        respuesta.setEstado(u.getEstado());
+        respuesta.setFechaRegistro(u.getFechaRegistro());
+        respuesta.setUltimoAcceso(u.getUltimoAcceso());
+        return respuesta;
+    }
+
     // ------------------ AGREGAR (REGISTRO) ------------------
     @Transactional
     @Override
@@ -43,26 +54,27 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
         usuarioWeb.setUltimoAcceso(LocalDateTime.now());
 
         UsuarioWeb guardado = usuarioWebRepository.save(usuarioWeb);
-        guardado.setContrasena(null);
         logger.info("Usuario registrado con éxito: {}", guardado.getEmail());
-        return guardado;
+        return sinContrasena(guardado);
     }
 
     // ------------------ BUSCAR POR EMAIL ------------------
     public Optional<UsuarioWeb> buscarPorEmail(String email) {
         logger.info("Buscando usuario por email: {}", email);
         return usuarioWebRepository.findByEmail(email)
-                .map(u -> { u.setContrasena(null); return u; });
+                .map(this::sinContrasena);
     }
 
     // ------------------ BUSCAR POR ESTADO ------------------
     public List<UsuarioWeb> buscarPorEstado(EstadoUsuario estado) {
-        return usuarioWebRepository.findByEstado(estado);
+        return usuarioWebRepository.findByEstado(estado)
+                .stream().map(this::sinContrasena).toList();
     }
 
     // ------------------ BUSCAR EXCLUYENDO ESTADO ------------------
     public List<UsuarioWeb> buscarExcluyendoEstado(EstadoUsuario estado) {
-        return usuarioWebRepository.findByEstadoNot(estado);
+        return usuarioWebRepository.findByEstadoNot(estado)
+                .stream().map(this::sinContrasena).toList();
     }
 
     // ------------------ ACTUALIZAR ÚLTIMO ACCESO ------------------
@@ -129,9 +141,8 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
         existente.setEstado(usuarioWeb.getEstado());
 
         UsuarioWeb actualizado = usuarioWebRepository.save(existente);
-        actualizado.setContrasena(null);
         logger.info("Usuario modificado con éxito: {}", actualizado.getEmail());
-        return actualizado;
+        return sinContrasena(actualizado);
     }
 
     // ------------------ BUSCAR ------------------
@@ -142,8 +153,7 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
             logger.warn("No se encontró usuario con ID: {}", id);
             return null;
         }
-        usuario.setContrasena(null);
-        return usuario;
+        return sinContrasena(usuario);
     }
 
     // ------------------ ELIMINAR ------------------
@@ -161,8 +171,7 @@ public class UsuarioWebService implements ICrud<UsuarioWeb> {
     @Override
     public List<UsuarioWeb> listar() {
         List<UsuarioWeb> usuarios = usuarioWebRepository.findAll();
-        usuarios.forEach(u -> u.setContrasena(null));
         logger.info("Se listaron {} usuarios.", usuarios.size());
-        return usuarios;
+        return usuarios.stream().map(this::sinContrasena).toList();
     }
 }

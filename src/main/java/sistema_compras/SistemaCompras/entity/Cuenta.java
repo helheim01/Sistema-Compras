@@ -3,6 +3,7 @@ package sistema_compras.SistemaCompras.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,7 +47,7 @@ public class Cuenta implements Serializable {
     private LocalDateTime fechaCerrada;
 
     @Column(name = "saldo_pendiente", nullable = false)
-    @Positive(message = "El saldo pendiente debe ser positivo")
+    @PositiveOrZero(message = "El saldo pendiente no puede ser negativo")
     private BigDecimal saldoPendiente = BigDecimal.ZERO;
 
     //-------------Relaciones---------------------------------------------------------------

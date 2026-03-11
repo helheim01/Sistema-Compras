@@ -1,6 +1,8 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -64,7 +66,10 @@ public class LineaPedido implements Serializable {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "ubicaciones", "impuestoProvincial"})
     private Producto producto;
 
-
+    @JsonCreator
+    public LineaPedido (@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 
 
 }

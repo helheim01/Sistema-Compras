@@ -1,5 +1,7 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,4 +40,9 @@ public class Admin {
     @Column(name="rol_admin")
     @NotBlank(message = "El rol del admin es obligatorio")
     private String rol;
+
+    @JsonCreator
+    public Admin (@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }

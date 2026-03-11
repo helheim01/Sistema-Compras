@@ -1,6 +1,8 @@
 package sistema_compras.SistemaCompras.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -44,4 +46,9 @@ public class ImagenProducto implements Serializable {
     @JoinColumn(name = "producto_id", nullable = false)  // ✅ Cambié a "producto_id" por consistencia
     @JsonBackReference
     private Producto producto;
+
+    @JsonCreator
+    public ImagenProducto (@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }

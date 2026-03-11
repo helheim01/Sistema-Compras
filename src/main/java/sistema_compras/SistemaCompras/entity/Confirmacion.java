@@ -1,5 +1,7 @@
 package sistema_compras.SistemaCompras.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -42,4 +44,9 @@ public class Confirmacion implements Serializable {
 
     @Column(name="enviado")
     private Boolean enviado=false;
+
+    @JsonCreator
+    public Confirmacion (@JsonProperty("id") Integer id) {
+        this.id = id;
+    }
 }
