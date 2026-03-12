@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,25 +33,24 @@ public class LineaPedido implements Serializable {
     @Column(name="id_lineaPedido")
     private Integer id;
 
-    // ATRIBUTOS PROPIOS (por eso necesita la clase)
     @Column(name = "cantidad", nullable = false)
-    @NotBlank(message = "La cantidad es obligatorio")
+    @NotNull(message = "La cantidad es obligatoria")
     @Positive(message = "La cantidad debe ser positiva")
     private Integer cantidad;
 
     @Column(name = "precioUnitario", nullable = false)
-    @NotBlank(message = "El precio unitario es obligatorio")
-    @Positive(message = "El precio unitario debe ser positiva")
+    @NotNull(message = "El precio unitario es obligatorio")
+    @Positive(message = "El precio unitario debe ser positivo")
     private BigDecimal precioUnitario;
 
     @Column(name = "descuento", nullable = false)
-    @NotBlank(message = "El descuento es obligatorio")
-    @Positive(message = "El descuento debe ser positiva")
+    @NotNull(message = "El descuento es obligatorio")
+    @PositiveOrZero(message = "El descuento no puede ser negativo")
     private BigDecimal descuento;
 
     @Column(name = "subtotal", nullable = false)
-    @NotBlank(message = "El subtotal es obligatorio")
-    @Positive(message = "El subtotal debe ser positiva")
+    @NotNull(message = "El subtotal es obligatorio")
+    @Positive(message = "El subtotal debe ser positivo")
     private BigDecimal subtotal;
 
     // Relaciones

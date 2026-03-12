@@ -1,6 +1,8 @@
 package sistema_compras.SistemaCompras.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,13 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "tipo")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = TarjetaCreditoDebito.class, name = "TARJETA"),
+        @JsonSubTypes.Type(value = PuntosRecompensa.class, name = "PUNTOS")
+})
+
 @Entity
 @Table(name = "metodo_pago")
 @Inheritance(strategy = InheritanceType.JOINED)

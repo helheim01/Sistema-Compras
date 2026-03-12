@@ -77,11 +77,6 @@ public class Pago implements Serializable {
     // ✅ 1:1 con MetodoPago (sin @MapsId)
     @OneToOne
     @JoinColumn(name = "metodo_pago_id")
-    @JsonBackReference
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private MetodoPago metodoPago;
-
-    @JsonCreator
-    public Pago (@JsonProperty("id") Integer id) {
-        this.id = id;
-    }
 }

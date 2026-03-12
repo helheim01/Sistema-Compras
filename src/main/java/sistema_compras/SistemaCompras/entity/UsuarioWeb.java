@@ -1,6 +1,7 @@
 package sistema_compras.SistemaCompras.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -53,7 +54,7 @@ public class UsuarioWeb implements Serializable {
 
     // ✅ 1:1 inverso con Cliente
     @OneToOne(mappedBy = "usuarioWeb", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonIgnore
     private Cliente cliente;
 
     @PrePersist
