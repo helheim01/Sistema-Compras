@@ -19,7 +19,7 @@ import java.util.Optional;
 @RestController
 @Validated
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "*") // Ajusta según tus necesidades
+@CrossOrigin(origins = "*")
 public class AdminController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
